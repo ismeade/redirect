@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/boltdb/bolt"
@@ -11,21 +12,23 @@ var (
 	bucket []byte
 )
 
-const dbname = "data.db"
+const (
+	dbName     = "data.db"
+	bucketName = "default"
+)
 
 func init() {
 	//创建bolt数据库本地文件
-	dbc, err := bolt.Open(dbname, 0600, nil)
-
-	//初始化bucket
-	bucket = []byte("url")
+	dbc, err := bolt.Open(dbName, 0600, nil)
 	if err != nil {
 		fmt.Println("open err:", err)
 		return
 	} else {
 		db = dbc
 	}
+
 	//创建bucket
+	bucket = []byte(bucketName)
 	db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucket(bucket)
 		return err
@@ -33,7 +36,11 @@ func init() {
 }
 
 //把数据插入到bolt数据库中，相当于redis中的set命令
-func insert(key, value string) error {
+func put(key, value string) error {
+
+	if key == "" || value == "" {
+		return errors.New("parameter error")
+	}
 
 	k := []byte(key)
 	v := []byte(value)
@@ -46,7 +53,7 @@ func insert(key, value string) error {
 }
 
 //删除一个指定的key中的数据
-func rm(key string) error {
+func remove(key string) error {
 	k := []byte(key)
 	return db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(bucket)
@@ -56,7 +63,7 @@ func rm(key string) error {
 }
 
 //读取一条数据
-func read(key string) string {
+func get(key string) string {
 	k := []byte(key)
 	var val []byte
 	db.View(func(tx *bolt.Tx) error {
@@ -68,14 +75,13 @@ func read(key string) string {
 }
 
 //遍历指定的bucket中的数据
-//func fetchAll(buk []byte) {
-	//db.View(func(tx *bolt.Tx) error {
-		//b := tx.Bucket(buk)
-		//cur := b.Cursor()
-		//for k, v := cur.First(); k != nil; k, v = cur.Next() {
-			//fmt.Printf("key is %s,value is %s\n", k, v)
-		//}
-		//return nil
-	//})
-//}
-
+func fetchAll(buk []byte) {
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(buk)
+		cur := b.Cursor()
+		for k, v := cur.First(); k != nil; k, v = cur.Next() {
+			fmt.Printf("key is %s,value is %s\n", k, v)
+		}
+		return nil
+	})
+}

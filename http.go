@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func defult(w http.ResponseWriter, r *http.Request) {
+func home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "")
 }
 
@@ -20,11 +20,15 @@ func baidu(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", defult)
+	http.HandleFunc("/", home)
 	http.HandleFunc("/baidu", baidu)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Printf("http server failed, err:%v\n", err)
 		return
 	}
+}
+
+func initHandleFunc() {
+
 }

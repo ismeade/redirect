@@ -16,16 +16,17 @@ func Test(t *testing.T) {
 
 	defer db.Close()
 
-	insert("hello", "Hello World,This is Bolt Database11..")
-	insert("hello2", "Hello World,This is Bolt Database22..")
+	err := put("", "Hello World,This is Bolt Database11..")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	put("hello", "Hello World,This is Bolt Database11..")
+	put("hello2", "Hello World,This is Bolt Database22..")
 	fmt.Println("===test===")
-	fmt.Println(read("hello"))
-	fmt.Println(read("hello2"))
+	fmt.Println(get("hello"))
+	fmt.Println(get("hello2"))
 	//rm("hello")
 	//insert("news1", "this is a title.")
 
 	//fetchAll(bucket)
 }
-
-
-
